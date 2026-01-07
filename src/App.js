@@ -258,7 +258,7 @@ const DesignQuestProfessional = () => {
             <div className="inline-flex items-center justify-center w-20 h-20 bg-white rounded-2xl shadow-2xl mb-4">
               <Trophy className="w-10 h-10 text-blue-600" />
             </div>
-            <h1 className="text-4xl font-bold text-white mb-2">Design Quest Pro</h1>
+            <h1 className="text-4xl font-bold text-white mb-2">SENAI Quest</h1>
             <p className="text-blue-200">Sistema de Gestão Educacional</p>
           </div>
 
