@@ -1,15 +1,135 @@
 import React, { useState, useEffect } from 'react';
 import { Trophy, Star, Users, Award, TrendingUp, Zap, Target, Crown, Plus, Minus, LogOut, User, Lock, Mail, Eye, EyeOff, CheckCircle, AlertCircle, Flame } from 'lucide-react';
 
+// ==================== MODAL DE PONTOS (FORA DO COMPONENTE PRINCIPAL) ====================
+const PointsModal = ({ student, onClose, onSubmit, getTotalPoints }) => {
+  const [points, setPoints] = useState('');
+  const [type, setType] = useState('pt');
+  const [activity, setActivity] = useState('');
+
+  const handleSubmit = (isAdding) => {
+    if (points && activity) {
+      const pointValue = isAdding ? parseInt(points) : -parseInt(points);
+      onSubmit(student.id, pointValue, type, activity);
+      onClose();
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50" onClick={onClose}>
+      <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden" onClick={(e) => e.stopPropagation()}>
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-2xl font-bold">Gerenciar Pontos</h3>
+            <button onClick={onClose} className="bg-white/20 p-2 rounded-xl hover:bg-white/30 transition-colors">
+              <LogOut className="w-5 h-5" />
+            </button>
+          </div>
+          <div className="flex items-center space-x-3">
+            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center text-2xl">
+              {student.avatar || '👤'}
+            </div>
+            <div>
+              <p className="font-bold">{student.name}</p>
+              <p className="text-sm text-white/80">{getTotalPoints(student)} XP total</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-6 space-y-4">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Tipo de Ponto</label>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => setType('pt')}
+                className={`py-3 rounded-xl font-semibold transition-all ${
+                  type === 'pt' ? 'bg-blue-500 text-white shadow-lg' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                <Target className="w-5 h-5 mx-auto mb-1" />
+                PT
+              </button>
+              <button
+                type="button"
+                onClick={() => setType('pc')}
+                className={`py-3 rounded-xl font-semibold transition-all ${
+                  type === 'pc' ? 'bg-purple-500 text-white shadow-lg' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                <Zap className="w-5 h-5 mx-auto mb-1" />
+                PC
+              </button>
+              <button
+                type="button"
+                onClick={() => setType('co')}
+                className={`py-3 rounded-xl font-semibold transition-all ${
+                  type === 'co' ? 'bg-green-500 text-white shadow-lg' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                <Users className="w-5 h-5 mx-auto mb-1" />
+                CO
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Quantidade</label>
+            <input
+              type="number"
+              value={points}
+              onChange={(e) => setPoints(e.target.value)}
+              className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:bg-white focus:outline-none transition-all"
+              placeholder="Ex: 50"
+              autoFocus
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Atividade</label>
+            <input
+              type="text"
+              value={activity}
+              onChange={(e) => setActivity(e.target.value)}
+              className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:bg-white focus:outline-none transition-all"
+              placeholder="Ex: Projeto Logo Concluído"
+            />
+          </div>
+
+          <div className="flex space-x-3 pt-4">
+            <button
+              type="button"
+              onClick={() => handleSubmit(true)}
+              disabled={!points || !activity}
+              className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-bold py-4 rounded-xl hover:from-green-600 hover:to-emerald-600 transition-all transform active:scale-95 shadow-lg flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Plus className="w-5 h-5" />
+              <span>Adicionar</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSubmit(false)}
+              disabled={!points || !activity}
+              className="flex-1 bg-gradient-to-r from-red-500 to-pink-500 text-white font-bold py-4 rounded-xl hover:from-red-600 hover:to-pink-600 transition-all transform active:scale-95 shadow-lg flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Minus className="w-5 h-5" />
+              <span>Remover</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const DesignQuestAuth = () => {
-  const [view, setView] = useState('login'); // 'login', 'signup', 'student-dashboard', 'admin-dashboard'
+  const [view, setView] = useState('login');
   const [currentUser, setCurrentUser] = useState(null);
   const [users, setUsers] = useState([]);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   
-  // Form states
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [signupName, setSignupName] = useState('');
@@ -17,14 +137,12 @@ const DesignQuestAuth = () => {
   const [signupPassword, setSignupPassword] = useState('');
   const [signupConfirmPassword, setSignupConfirmPassword] = useState('');
 
-  // Credenciais do administrador (hardcoded)
   const ADMIN_CREDENTIALS = {
     email: 'admin@designquest.com',
     password: 'admin123',
     name: 'Administrador'
   };
 
-  // Carregar usuários do localStorage
   useEffect(() => {
     const savedUsers = localStorage.getItem('designQuestUsers');
     if (savedUsers) {
@@ -32,23 +150,22 @@ const DesignQuestAuth = () => {
     }
   }, []);
 
-  // Salvar usuários no localStorage
   useEffect(() => {
     if (users.length > 0) {
-      localStorage.setItem('designQuestUsers', JSON.stringify(users));
+      const timeoutId = setTimeout(() => {
+        localStorage.setItem('designQuestUsers', JSON.stringify(users));
+      }, 300);
+      return () => clearTimeout(timeoutId);
     }
   }, [users]);
 
-  // Validação de email
   const isValidEmail = (email) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
-  // Função de login
   const handleLogin = () => {
     setError('');
     
-    // Verificar se é o admin
     if (loginEmail === ADMIN_CREDENTIALS.email && loginPassword === ADMIN_CREDENTIALS.password) {
       setCurrentUser({
         type: 'admin',
@@ -61,7 +178,6 @@ const DesignQuestAuth = () => {
       return;
     }
 
-    // Verificar usuários normais
     const user = users.find(u => u.email === loginEmail && u.password === loginPassword);
     
     if (user) {
@@ -74,12 +190,10 @@ const DesignQuestAuth = () => {
     }
   };
 
-  // Função de criar conta
   const handleSignup = () => {
     setError('');
     setSuccess('');
 
-    // Validações
     if (!signupName.trim()) {
       setError('Por favor, digite seu nome completo');
       return;
@@ -100,13 +214,11 @@ const DesignQuestAuth = () => {
       return;
     }
 
-    // Verificar se email já existe
     if (users.find(u => u.email === signupEmail)) {
       setError('Este email já está cadastrado');
       return;
     }
 
-    // Criar novo usuário
     const newUser = {
       id: Date.now(),
       type: 'student',
@@ -127,20 +239,17 @@ const DesignQuestAuth = () => {
     setUsers([...users, newUser]);
     setSuccess('Conta criada com sucesso! Faça login para continuar.');
     
-    // Limpar campos
     setSignupName('');
     setSignupEmail('');
     setSignupPassword('');
     setSignupConfirmPassword('');
 
-    // Voltar para login após 2 segundos
     setTimeout(() => {
       setView('login');
       setSuccess('');
     }, 2000);
   };
 
-  // Funções auxiliares para o sistema de pontos
   const getTotalPoints = (student) => student.pt + student.pc + student.co;
   
   const getLevelInfo = (totalXP) => {
@@ -182,7 +291,6 @@ const DesignQuestAuth = () => {
     );
   };
 
-  // ==================== TELA DE LOGIN/SIGNUP ====================
   const AuthView = () => {
     const isLoginView = view === 'login';
 
@@ -190,7 +298,6 @@ const DesignQuestAuth = () => {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex items-center justify-center p-4">
         <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-8 items-center">
           
-          {/* Lado Esquerdo - Hero Section */}
           <div className="hidden lg:block space-y-6">
             <div className="inline-block bg-white px-4 py-2 rounded-full shadow-sm">
               <p className="text-sm font-semibold text-blue-600 flex items-center space-x-2">
@@ -218,17 +325,14 @@ const DesignQuestAuth = () => {
               </div>
             </div>
 
-            {/* Elementos decorativos */}
             <div className="relative mt-12">
               <div className="absolute -top-10 -left-10 w-32 h-32 bg-blue-500 rounded-3xl opacity-20 blur-2xl"></div>
               <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-green-400 rounded-3xl opacity-20 blur-2xl"></div>
             </div>
           </div>
 
-          {/* Lado Direito - Form */}
           <div className="w-full">
             <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
-              {/* Header */}
               <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-8 text-center">
                 <div className="inline-flex items-center justify-center w-20 h-20 bg-white rounded-full mb-4 shadow-lg">
                   <Trophy className="w-10 h-10 text-blue-600" />
@@ -237,7 +341,6 @@ const DesignQuestAuth = () => {
                 <p className="text-blue-100">Sua jornada criativa</p>
               </div>
 
-              {/* Toggle Login/Signup */}
               <div className="p-2 bg-gray-100 flex space-x-2">
                 <button
                   onClick={() => {
@@ -269,10 +372,8 @@ const DesignQuestAuth = () => {
                 </button>
               </div>
 
-              {/* Form Content */}
               <div className="p-8 space-y-6">
                 
-                {/* Mensagens de erro e sucesso */}
                 {error && (
                   <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4 flex items-center space-x-3">
                     <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
@@ -287,7 +388,6 @@ const DesignQuestAuth = () => {
                   </div>
                 )}
 
-                {/* LOGIN FORM */}
                 {isLoginView ? (
                   <div className="space-y-4">
                     <div>
@@ -338,7 +438,6 @@ const DesignQuestAuth = () => {
                       Entrar
                     </button>
 
-                    {/* Dica de admin */}
                     <div className="mt-6 pt-6 border-t border-gray-200">
                       <p className="text-xs text-center text-gray-500 mb-2">💡 Acesso de Administrador:</p>
                       <div className="bg-purple-50 rounded-lg p-3 text-center">
@@ -349,7 +448,6 @@ const DesignQuestAuth = () => {
                     </div>
                   </div>
                 ) : (
-                  /* SIGNUP FORM */
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -438,7 +536,6 @@ const DesignQuestAuth = () => {
               </div>
             </div>
 
-            {/* Mobile: Logo/Title */}
             <div className="lg:hidden text-center mt-8">
               <h1 className="text-3xl font-black text-gray-800 mb-2">Design Quest</h1>
               <p className="text-gray-600">Plataforma de Gamificação Educacional</p>
@@ -449,7 +546,6 @@ const DesignQuestAuth = () => {
     );
   };
 
-  // ==================== DASHBOARD DO ALUNO ====================
   const StudentDashboard = () => {
     const student = users.find(u => u.id === currentUser.id) || currentUser;
     const totalPoints = getTotalPoints(student);
@@ -460,7 +556,6 @@ const DesignQuestAuth = () => {
 
     return (
       <div className="min-h-screen bg-gray-50">
-        {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 py-6">
             <div className="flex items-center justify-between">
@@ -493,7 +588,6 @@ const DesignQuestAuth = () => {
               </button>
             </div>
 
-            {/* Level Progress */}
             <div className="mt-6 bg-white/10 backdrop-blur-sm rounded-2xl p-5">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center space-x-2">
@@ -514,9 +608,7 @@ const DesignQuestAuth = () => {
           </div>
         </div>
 
-        {/* Main Content */}
         <div className="max-w-7xl mx-auto p-4 pb-8">
-          {/* Stats Cards */}
           <div className="grid grid-cols-3 gap-3 mb-6 -mt-8">
             <div className="bg-white rounded-2xl shadow-lg p-4 border-2 border-blue-100 transform hover:scale-105 transition-transform">
               <div className="flex items-center justify-between mb-2">
@@ -546,7 +638,6 @@ const DesignQuestAuth = () => {
             </div>
           </div>
 
-          {/* Tabs */}
           <div className="flex space-x-2 mb-6 bg-white rounded-2xl p-2 shadow-sm">
             <button
               onClick={() => setActiveTab('overview')}
@@ -580,7 +671,6 @@ const DesignQuestAuth = () => {
             </button>
           </div>
 
-          {/* Tab Content - Overview */}
           {activeTab === 'overview' && (
             <div className="bg-white rounded-2xl shadow-sm p-6">
               <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
@@ -620,7 +710,6 @@ const DesignQuestAuth = () => {
             </div>
           )}
 
-          {/* Tab Content - Ranking */}
           {activeTab === 'ranking' && (
             <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
               <div className="p-6 bg-gradient-to-r from-yellow-50 to-orange-50 border-b">
@@ -685,7 +774,6 @@ const DesignQuestAuth = () => {
             </div>
           )}
 
-          {/* Tab Content - Badges */}
           {activeTab === 'badges' && (
             <div className="bg-white rounded-2xl shadow-sm p-6">
               <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center">
@@ -715,123 +803,10 @@ const DesignQuestAuth = () => {
     );
   };
 
-  // ==================== DASHBOARD DO ADMIN ====================
   const AdminDashboard = () => {
     const ranking = getRanking();
     const [showPointsModal, setShowPointsModal] = useState(false);
     const [selectedStudent, setSelectedStudent] = useState(null);
-
-    const PointsModal = ({ student, onClose }) => {
-      const [points, setPoints] = useState('');
-      const [type, setType] = useState('pt');
-      const [activity, setActivity] = useState('');
-
-      const handleSubmit = (isAdding) => {
-        if (points && activity) {
-          const pointValue = isAdding ? parseInt(points) : -parseInt(points);
-          addPoints(student.id, pointValue, type, activity);
-          onClose();
-        }
-      };
-
-      return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden">
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-2xl font-bold">Gerenciar Pontos</h3>
-                <button onClick={onClose} className="bg-white/20 p-2 rounded-xl hover:bg-white/30 transition-colors">
-                  <LogOut className="w-5 h-5" />
-                </button>
-              </div>
-              <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center text-2xl">
-                  {student.avatar || '👤'}
-                </div>
-                <div>
-                  <p className="font-bold">{student.name}</p>
-                  <p className="text-sm text-white/80">{getTotalPoints(student)} XP total</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Tipo de Ponto</label>
-                <div className="grid grid-cols-3 gap-2">
-                  <button
-                    onClick={() => setType('pt')}
-                    className={`py-3 rounded-xl font-semibold transition-all ${
-                      type === 'pt' ? 'bg-blue-500 text-white shadow-lg' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    <Target className="w-5 h-5 mx-auto mb-1" />
-                    PT
-                  </button>
-                  <button
-                    onClick={() => setType('pc')}
-                    className={`py-3 rounded-xl font-semibold transition-all ${
-                      type === 'pc' ? 'bg-purple-500 text-white shadow-lg' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    <Zap className="w-5 h-5 mx-auto mb-1" />
-                    PC
-                  </button>
-                  <button
-                    onClick={() => setType('co')}
-                    className={`py-3 rounded-xl font-semibold transition-all ${
-                      type === 'co' ? 'bg-green-500 text-white shadow-lg' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    <Users className="w-5 h-5 mx-auto mb-1" />
-                    CO
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Quantidade</label>
-                <input
-                  type="number"
-                  value={points}
-                  onChange={(e) => setPoints(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:bg-white focus:outline-none transition-all"
-                  placeholder="Ex: 50"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Atividade</label>
-                <input
-                  type="text"
-                  value={activity}
-                  onChange={(e) => setActivity(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:bg-white focus:outline-none transition-all"
-                  placeholder="Ex: Projeto Logo Concluído"
-                />
-              </div>
-
-              <div className="flex space-x-3 pt-4">
-                <button
-                  onClick={() => handleSubmit(true)}
-                  className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-bold py-4 rounded-xl hover:from-green-600 hover:to-emerald-600 transition-all transform active:scale-95 shadow-lg flex items-center justify-center space-x-2"
-                >
-                  <Plus className="w-5 h-5" />
-                  <span>Adicionar</span>
-                </button>
-                <button
-                  onClick={() => handleSubmit(false)}
-                  className="flex-1 bg-gradient-to-r from-red-500 to-pink-500 text-white font-bold py-4 rounded-xl hover:from-red-600 hover:to-pink-600 transition-all transform active:scale-95 shadow-lg flex items-center justify-center space-x-2"
-                >
-                  <Minus className="w-5 h-5" />
-                  <span>Remover</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    };
 
     return (
       <div className="min-h-screen bg-gray-50">
@@ -934,6 +909,7 @@ const DesignQuestAuth = () => {
                         </div>
 
                         <button
+                          type="button"
                           onClick={() => {
                             setSelectedStudent(student);
                             setShowPointsModal(true);
@@ -964,13 +940,14 @@ const DesignQuestAuth = () => {
               setShowPointsModal(false);
               setSelectedStudent(null);
             }}
+            onSubmit={addPoints}
+            getTotalPoints={getTotalPoints}
           />
         )}
       </div>
     );
   };
 
-  // Render principal
   return (
     <div className="font-sans antialiased">
       {(view === 'login' || view === 'signup') && <AuthView />}
@@ -981,5 +958,6 @@ const DesignQuestAuth = () => {
 };
 
 export default DesignQuestAuth;
+
 
 
